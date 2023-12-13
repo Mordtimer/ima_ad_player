@@ -75,8 +75,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
   ImaAdInfo? adInfo;
 
   final controller = ImaPlayerController(
-    videoUrl:
-        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
     imaTag:
         'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=',
     options: const ImaPlayerOptions(
@@ -87,7 +85,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ),
     adsLoaderSettings: const ImaAdsLoaderSettings(
       autoPlayAdBreaks: true,
-      language: 'tr',
+      language: 'pl',
     ),
   );
 

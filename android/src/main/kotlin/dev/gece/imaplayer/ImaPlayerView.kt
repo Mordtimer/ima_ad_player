@@ -62,7 +62,6 @@ internal class ImaPlayerView(
     private var adBuffering = false;
 
     // Passed arguments
-    private var videoUrl: Uri? = null
     private var imaTag: Uri? = null
     private val isMuted: Boolean
     private val isMixed: Boolean
@@ -120,7 +119,6 @@ internal class ImaPlayerView(
 
     init {
         /// get and set arguments
-        videoUrl = Uri.parse(args["video_url"] as String?)
         imaTag = Uri.parse(args["ima_tag"] as String?)
         isMuted = args["is_muted"] as Boolean? == true
         isMixed = args["is_mixed"] as Boolean? ?: true
@@ -223,7 +221,7 @@ internal class ImaPlayerView(
     }
 
     private fun preparePlayer() {
-        val mediaItem = MediaItem.Builder().setUri(videoUrl)
+        val mediaItem = MediaItem.Builder().setUri("")
             .setAdsConfiguration(imaTag?.let {
                 MediaItem.AdsConfiguration.Builder(it).build()
             }).build()
@@ -235,7 +233,6 @@ internal class ImaPlayerView(
 
     private fun play(videoUrl: String?, result: MethodChannel.Result) {
         if (videoUrl != null) {
-            this.videoUrl = Uri.parse(videoUrl)
             player.stop()
             player.clearMediaItems()
             adsLoader.skipAd()
