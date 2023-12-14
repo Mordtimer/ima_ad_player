@@ -152,6 +152,9 @@ internal class ImaPlayerView(
                 run {
                     ad = event.ad
                     sendEvent(EventType.ADS, event.type.name)
+                    if (!player.isPlayingAd) {
+                        completeAdPlayer()
+                    }
                 }
             }
 
@@ -206,6 +209,17 @@ internal class ImaPlayerView(
 
         preparePlayer()
     }
+
+    private fun completeAdPlayer() {
+        Log.e("ADS", "complete ad player")
+        player.stop()
+        player.release()
+        adsLoader.release()
+        adsManager?.skip()
+        adsManager?.destroy()
+        sendEvent(EventType.ADS, "ALL_ADS_COMPLETED")
+    }
+
 
     override fun onPlaybackStateChanged(playbackState: Int) {
         super.onPlaybackStateChanged(playbackState)
