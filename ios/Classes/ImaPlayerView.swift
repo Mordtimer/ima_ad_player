@@ -54,7 +54,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     ) {
         
         imaTag = args["ima_tag"] as? String
-        videoUrl = URL(string: args["video_url"] as? String ?? "")!
+        videoUrl = URL(string: args["video_url"] as? String ?? "") ?? URL(string: "http://")!
         autoPlay = args["auto_play"] as? Bool ?? false
         isMuted = args["is_muted"] as? Bool ?? false
         isMixed = args["is_mixed"] as? Bool ?? true
@@ -117,6 +117,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
         avPlayerViewController.view.layer.borderWidth = 0
         avPlayerViewController.view.layer.borderColor = UIColor.clear.cgColor
         avPlayerViewController.view.backgroundColor = UIColor.clear
+        avPlayerViewController.view.alpha = 0
         // avPlayerViewController.view.layer.shouldRasterize = true
         
         contentPlayhead = IMAAVPlayerContentPlayhead(avPlayer: player)
@@ -204,10 +205,14 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
         case IMAAdEventType.COMPLETE: fallthrough
         case IMAAdEventType.ALL_ADS_COMPLETED:
             ad = nil
+            self.avPlayerViewController.view.alpha = 0
             break;
             
         case IMAAdEventType.LOADED:
             adsManager.start()
+            UIView.animate(withDuration: 0.1) { [weak self] in
+                self?.avPlayerViewController.view.alpha = 1
+            }
             break;
             
         default:
@@ -272,8 +277,13 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     @objc func checkViewIsReady(){
         if(self.avPlayerViewController.isViewLoaded && (self.avPlayerViewController.view.window != nil)) {
             timer.invalidate()
-            self.requestAds()
+            self.reloadAds()
         }
+    }
+    
+    private func reloadAds() {
+        requestAds()
+        adsLoader.contentComplete()
     }
     
     func onMethodCall(call: FlutterMethodCall, result: FlutterResult) {
