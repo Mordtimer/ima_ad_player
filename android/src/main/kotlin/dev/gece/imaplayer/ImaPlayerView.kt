@@ -166,10 +166,13 @@ internal class ImaPlayerView(
 
                 override fun onContentComplete() {
                     ad = null
+                    sendEvent(EventType.ADS, "ALL_ADS_COMPLETED")
                 }
 
                 override fun onEnded(p0: AdMediaInfo?) {}
-                override fun onError(p0: AdMediaInfo?) {}
+                override fun onError(p0: AdMediaInfo?) {
+                    sendEvent(EventType.ADS, "UNKNOWN")
+                }
                 override fun onLoaded(p0: AdMediaInfo?) {}
                 override fun onPause(p0: AdMediaInfo?) {}
                 override fun onPlay(p0: AdMediaInfo?) {}
@@ -179,7 +182,6 @@ internal class ImaPlayerView(
             .build()
 
         adsLoader.adsLoader?.addAdsLoadedListener { event -> adsManager = event.adsManager }
-
 
         // Set up the factory for media sources, passing the ads loader and ad view providers.
         val dataSourceFactory = DefaultDataSource.Factory(context)
@@ -243,6 +245,8 @@ internal class ImaPlayerView(
         player.setMediaItem(mediaItem)
         player.prepare()
     }
+
+
 
 
     private fun play(videoUrl: String?, result: MethodChannel.Result) {
