@@ -19,6 +19,12 @@ enum ImaPlayerEvents {
   }
 }
 
+class ImaAdsErrorEvent {
+  final Exception exception;
+
+  ImaAdsErrorEvent(this.exception);
+}
+
 enum ImaAdsEvents {
   ALL_ADS_COMPLETED,
   AD_BREAK_FETCH_ERROR,

@@ -121,10 +121,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
     });
 
     controller.onAdsEvent.listen((event) async {
+      print("event: $event");
       if (event == ImaAdsEvents.CONTENT_RESUME_REQUESTED ||
           event == ImaAdsEvents.CONTENT_PAUSE_REQUESTED) {
         updateAspectRatio();
       }
+      if(event == ImaAdsEvents.ALL_ADS_COMPLETED || event == ImaAdsEvents.SKIPPED){
+          Navigator.of(context).pop();
+      }
+    });
+
+    controller.onAdsErrorEvent.listen((event) async {
+      debugPrint("ad exception event: ${event.exception.toString()}");
     });
   }
 

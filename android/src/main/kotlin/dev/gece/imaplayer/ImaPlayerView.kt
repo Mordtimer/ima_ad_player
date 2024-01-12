@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
@@ -16,12 +17,8 @@ import androidx.media3.exoplayer.ima.ImaAdsLoader
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 import com.google.ads.interactivemedia.v3.api.Ad
-import com.google.ads.interactivemedia.v3.api.AdEvent
-import com.google.ads.interactivemedia.v3.api.AdsLoader
 import com.google.ads.interactivemedia.v3.api.AdsManager
-import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory
-import com.google.ads.interactivemedia.v3.api.ImaSdkSettings
 import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate
@@ -42,7 +39,8 @@ internal class ImaPlayerView(
 
     private enum class EventType {
         ADS,
-        PLAYER
+        PLAYER,
+        AD_ERROR
     }
 
     private val tag = "IMA_PLAYER/$id"
@@ -157,7 +155,12 @@ internal class ImaPlayerView(
                     }
                 }
             }
-
+            .setAdErrorListener { adErrorEvent ->
+                sendEvent(
+                    EventType.AD_ERROR,
+                    "VideoAdError for ad: ${ad?.adId} ${adErrorEvent.error?.stackTraceToString()}"
+                )
+            }
             .setVideoAdPlayerCallback(object : VideoAdPlayer.VideoAdPlayerCallback {
                 override fun onAdProgress(info: AdMediaInfo?, progress: VideoProgressUpdate?) {}
                 override fun onBuffering(info: AdMediaInfo?) {
@@ -168,9 +171,20 @@ internal class ImaPlayerView(
                     ad = null
                 }
 
-                override fun onEnded(p0: AdMediaInfo?) {}
-                override fun onError(p0: AdMediaInfo?) {}
-                override fun onLoaded(p0: AdMediaInfo?) {}
+                override fun onEnded(p0: AdMediaInfo?) {
+
+                }
+
+                override fun onError(adMediaInfo: AdMediaInfo?) {
+                    sendEvent(
+                        EventType.AD_ERROR,
+                        "VideoAdPlayerCallbackException for ad media info url: ${adMediaInfo?.url}"
+                    )
+                }
+
+                override fun onLoaded(p0: AdMediaInfo?) {
+                }
+
                 override fun onPause(p0: AdMediaInfo?) {}
                 override fun onPlay(p0: AdMediaInfo?) {}
                 override fun onResume(p0: AdMediaInfo?) {}
@@ -198,6 +212,25 @@ internal class ImaPlayerView(
             AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
             !isMixed
         )
+
+        player.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                super.onPlayerError(error)
+                sendEvent(
+                    EventType.AD_ERROR,
+                    "Exo player error for adID: ${ad?.adId} ${error.stackTraceToString()}"
+                )
+            }
+
+            override fun onPlayerErrorChanged(error: PlaybackException?) {
+                super.onPlayerErrorChanged(error)
+                sendEvent(
+                    EventType.AD_ERROR,
+                    "Exo player error for adId: ${ad?.adId} ${error?.stackTraceToString()}"
+                )
+            }
+        })
+
 
         if (isMuted) {
             player.volume = 0.0F
@@ -339,8 +372,7 @@ internal class ImaPlayerView(
         return "%.1f".format((value ?: 0.0) / 1000).toDouble()
     }
 
-    private fun sendEvent(type: EventType, value: Any?) {
-
+    private fun sendEvent(type: EventType, value: String?) {
         eventSink?.success(
             hashMapOf("type" to type.name.lowercase(), "value" to value)
         )

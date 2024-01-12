@@ -24,7 +24,11 @@ class ImaPlayerController {
   final _onAdsEventController = StreamController<ImaAdsEvents>();
   late final onAdsEvent = _onAdsEventController.stream;
 
+  final _onAdsErrorController = StreamController<ImaAdsErrorEvent>();
+  late final onAdsErrorEvent = _onAdsErrorController.stream;
+
   StreamSubscription? _eventChannelListener;
+
   void _attach(int viewId) {
     _methodChannel = MethodChannel('gece.dev/imaplayer/$viewId');
     _eventChannel = EventChannel('gece.dev/imaplayer/$viewId/events');
@@ -54,6 +58,14 @@ class ImaPlayerController {
               _onPlayerEventController.add(
                 ImaPlayerEvents.fromString(value),
               );
+              break;
+
+            case 'ad_error':
+              if (value is Exception) {
+                _onAdsErrorController.add(ImaAdsErrorEvent(value));
+              } else {
+                _onAdsErrorController.add(ImaAdsErrorEvent(Exception(value)));
+              }
               break;
           }
         }
