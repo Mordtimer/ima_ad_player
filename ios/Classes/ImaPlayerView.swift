@@ -188,7 +188,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     }
     
     func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
-        // todo: improve error messages
+        sendEvent(type: .ads, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.rawValue)
         if autoPlay {
             player?.play()
         }
@@ -197,9 +197,6 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     // MARK: - IMAAdsManagerDelegate
     func adsManager(_ adsManager: IMAAdsManager, didReceive event: IMAAdEvent) {
         sendEvent(type: .ads, value: event.typeString)
-        
-        print(event.typeString)
-        
         switch event.type {
         case IMAAdEventType.SKIPPED: fallthrough
         case IMAAdEventType.COMPLETE: fallthrough
@@ -222,7 +219,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     }
     
     func adsManager(_ adsManager: IMAAdsManager, didReceive error: IMAAdError) {
-        // todo: improve error messages
+        sendEvent(type: .ads, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.rawValue)
     }
     
     func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
