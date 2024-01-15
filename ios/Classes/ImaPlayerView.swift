@@ -17,6 +17,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     enum Events: String {
         case ads
         case player
+        case adsError = "ad_error"
     }
     
     private var player: AVPlayer!
@@ -188,7 +189,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     }
     
     func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
-        sendEvent(type: .ads, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.toRawValue())
+        sendEvent(type: .adsError, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.toRawValue())
         if autoPlay {
             player?.play()
         }
@@ -219,7 +220,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     }
     
     func adsManager(_ adsManager: IMAAdsManager, didReceive error: IMAAdError) {
-        sendEvent(type: .ads, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.toRawValue())
+        sendEvent(type: .adsError, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.toRawValue())
     }
     
     func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
