@@ -189,7 +189,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     }
     
     func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
-        sendEvent(type: .adsError, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.toRawValue())
+        sendEvent(type: .adsError, value: "IMAAdLoading error for adID: \(imaTag ?? "") code: \(adErrorData.adError.code.rawValue) message: \(adErrorData.adError.message ?? "-") Line: \(#line) Function: \(#function)")
         if autoPlay {
             player?.play()
         }
@@ -220,7 +220,7 @@ class ImaPlayerView: NSObject, FlutterPlatformView, FlutterStreamHandler, IMAAds
     }
     
     func adsManager(_ adsManager: IMAAdsManager, didReceive error: IMAAdError) {
-        sendEvent(type: .adsError, value: IMAAdEventType.AD_BREAK_FETCH_ERROR.toRawValue())
+        sendEvent(type: .adsError, value: "IMAAdRecive error for adID: \(imaTag ?? "") code: \(error.code.rawValue) message: \(error.message ?? "-") Line: \(#line) Function: \(#function)")
     }
     
     func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
